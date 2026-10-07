@@ -9,8 +9,8 @@ import com.aib.pages.CookieBannerComponent;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -20,9 +20,9 @@ public abstract class BaseTest {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    @BeforeMethod(alwaysRun = true)
+    @BeforeClass(alwaysRun = true)
     @Parameters({"browser", "headless"})
-    public void setUp(@Optional String browserParam, @Optional String headlessParam) {
+    public void setUpClass(@Optional String browserParam, @Optional String headlessParam) {
         String browser = (browserParam != null && !browserParam.isEmpty())
                 ? browserParam
                 : ConfigReader.get("browser", "chrome");
@@ -31,8 +31,8 @@ public abstract class BaseTest {
                 ? Boolean.parseBoolean(headlessParam)
                 : ConfigReader.getBoolean("headless", true);
 
-        log.info("Setting up WebDriver for thread ID: {} [Browser: {}, Headless: {}]",
-                Thread.currentThread().getId(), browser, headless);
+        log.info("Starting browser session for test class: {} [Browser: {}, Headless: {}]",
+                getClass().getSimpleName(), browser, headless);
 
         WebDriver driver = DriverFactory.createDriver(browser, headless);
         DriverManager.setDriver(driver);
@@ -54,11 +54,11 @@ public abstract class BaseTest {
         new CookieBannerComponent().acceptCookiesIfPresent();
     }
 
-    @AfterMethod(alwaysRun = true)
-    public void tearDown() {
+    @AfterClass(alwaysRun = true)
+    public void tearDownClass() {
         WebDriver driver = DriverManager.getDriver();
         if (driver != null) {
-            log.info("Tearing down WebDriver for thread ID: {}", Thread.currentThread().getId());
+            log.info("Closing browser session for test class: {}", getClass().getSimpleName());
             try {
                 driver.quit();
             } catch (Exception e) {

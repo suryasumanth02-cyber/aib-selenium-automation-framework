@@ -3,23 +3,21 @@ package com.aib.pages;
 import com.aib.utils.WaitUtils;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-
-import java.time.Duration;
 
 /**
- * Page Object representing the AIB Public Homepage (aib.ie).
+ * Page Object representing the AIB Public Homepage (aib.ie) with styling/RGBA inspection.
  */
 public class AibHomePage extends BasePage {
 
-    // Locators
+    // Locators for AIB's top-level header elements
     private final By aibLogo = By.xpath("//a[contains(@class, 'logo') or @aria-label='AIB' or contains(@href, 'aib.ie')]//img | //header//a//img");
-    private final By searchButton = By.xpath("//button[contains(@class, 'search') or contains(@aria-label, 'Search') or contains(@id, 'search')]");
-    private final By mortgagesNavLink = By.xpath("//a[contains(text(), 'Mortgages') or contains(@href, 'mortgages')]");
-    private final By loansNavLink = By.xpath("//a[contains(text(), 'Loans') or contains(@href, 'loans')]");
-    private final By everydayBankingNavLink = By.xpath("//a[contains(text(), 'Everyday Banking') or contains(@href, 'everyday-banking')]");
-    private final By branchLocatorLink = By.xpath("//a[contains(text(), 'Branch Locator') or contains(@href, 'branch-locator')]");
     private final By pageHeader = By.tagName("header");
+    private final By mortgagesNavButton = By.xpath("//button[contains(text(), 'Mortgages')] | //a[contains(text(), 'Mortgages')]");
+    private final By productsNavButton = By.xpath("//button[contains(text(), 'Products')] | //a[contains(text(), 'Products')]");
+    private final By waysToBankNavButton = By.xpath("//button[contains(text(), 'Ways to bank')] | //a[contains(text(), 'Ways to bank')]");
+    private final By helpAndGuidanceNavButton = By.xpath("//button[contains(text(), 'Help and guidance')] | //a[contains(text(), 'Help and guidance')]");
+    private final By makeAPlanNavButton = By.xpath("//button[contains(text(), 'Make a plan')] | //a[contains(text(), 'Make a plan')]");
+    private final By iWantToNavButton = By.xpath("//button[contains(text(), 'I want to')]");
 
     @Step("Verifying that AIB homepage header is loaded")
     public boolean isHeaderDisplayed() {
@@ -31,18 +29,53 @@ public class AibHomePage extends BasePage {
         return isDisplayed(aibLogo);
     }
 
-    @Step("Navigating to Mortgages section")
-    public void clickMortgages() {
-        click(mortgagesNavLink);
+    @Step("Retrieving logo source URL")
+    public String getLogoSrc() {
+        return getAttribute(aibLogo, "src");
     }
 
-    @Step("Navigating to Loans section")
-    public void clickLoans() {
-        click(loansNavLink);
+    @Step("Retrieving header background color RGBA")
+    public String getHeaderBackgroundColor() {
+        return getCssValue(pageHeader, "background-color");
     }
 
-    @Step("Clicking Branch Locator link")
-    public void clickBranchLocator() {
-        click(branchLocatorLink);
+    @Step("Retrieving Mortgages nav item text color RGBA")
+    public String getMortgagesNavTextColor() {
+        return getCssValue(mortgagesNavButton, "color");
+    }
+
+    @Step("Retrieving Mortgages nav item font size")
+    public String getMortgagesNavFontSize() {
+        return getCssValue(mortgagesNavButton, "font-size");
+    }
+
+    @Step("Verifying Products navigation button is displayed")
+    public boolean isProductsNavButtonDisplayed() {
+        return isDisplayed(productsNavButton);
+    }
+
+    @Step("Retrieving Products nav button text color RGBA")
+    public String getProductsNavTextColor() {
+        return getCssValue(productsNavButton, "color");
+    }
+
+    @Step("Verifying Ways to Bank navigation button is displayed")
+    public boolean isWaysToBankNavButtonDisplayed() {
+        return isDisplayed(waysToBankNavButton);
+    }
+
+    @Step("Retrieving Ways to Bank font color RGBA")
+    public String getWaysToBankTextColor() {
+        return getCssValue(waysToBankNavButton, "color");
+    }
+
+    @Step("Verifying Help and Guidance navigation button is displayed")
+    public boolean isHelpAndGuidanceNavButtonDisplayed() {
+        return isDisplayed(helpAndGuidanceNavButton);
+    }
+
+    @Step("Verifying Make a Plan navigation button is displayed")
+    public boolean isMakeAPlanNavButtonDisplayed() {
+        return isDisplayed(makeAPlanNavButton);
     }
 }

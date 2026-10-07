@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 
 /**
- * Base Page Object containing common element interactions and assertions.
+ * Base Page Object containing common element interactions, CSS/RGBA inspection, and assertions.
  */
 public abstract class BasePage {
 
@@ -60,6 +60,20 @@ public abstract class BasePage {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Step("Retrieving CSS property '{propertyName}' for element: {locator}")
+    public String getCssValue(By locator, String propertyName) {
+        WebElement element = WaitUtils.waitForPresence(locator);
+        String value = element.getCssValue(propertyName);
+        log.info("Element {} CSS property '{}': '{}'", locator, propertyName, value);
+        return value;
+    }
+
+    @Step("Retrieving attribute '{attributeName}' for element: {locator}")
+    public String getAttribute(By locator, String attributeName) {
+        WebElement element = WaitUtils.waitForPresence(locator);
+        return element.getAttribute(attributeName);
     }
 
     public String getPageTitle() {

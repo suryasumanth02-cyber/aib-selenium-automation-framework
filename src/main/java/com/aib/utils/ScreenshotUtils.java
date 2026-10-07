@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Screenshot utility for capturing failure evidence and attaching to Allure reports.
+ * Screenshot utility capturing screenshots for both Passed and Failed tests.
  */
 public final class ScreenshotUtils {
 
@@ -28,35 +28,40 @@ public final class ScreenshotUtils {
     /**
      * Captures screenshot as byte array and attaches directly to Allure report.
      */
-    @Attachment(value = "Failure Screenshot: {testName}", type = "image/png")
-    public static byte[] captureScreenshotForReport(String testName) {
+    @Attachment(value = "{status} Screenshot: {testName}", type = "image/png")
+    public static byte[] captureScreenshotForReport(String testName, String status) {
         if (DriverManager.getDriver() != null) {
-            return ((TakesScreenshot) DriverManager.getDriver()).getScreenshotAs(OutputType.BYTES);
+            try {
+                return ((TakesScreenshot) DriverManager.getDriver()).getScreenshotAs(OutputType.BYTES);
+            } catch (Exception e) {
+                log.warn("Failed to capture screenshot bytes: {}", e.getMessage());
+            }
         }
         return new byte[0];
     }
 
     /**
-     * Saves screenshot to target directory.
+     * Saves screenshot to target directory categorized by status (passed / failed).
      */
-    public static String saveScreenshotToFile(String testName) {
+    public static String saveScreenshotToFile(String testName, String status) {
         if (DriverManager.getDriver() == null) {
             return null;
         }
 
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fileName = testName + "_" + timestamp + ".png";
-        String filePath = FrameworkConstants.SCREENSHOTS_DIR + fileName;
-
-        File srcFile = ((TakesScreenshot) DriverManager.getDriver()).getScreenshotAs(OutputType.FILE);
-        File destFile = new File(filePath);
-
         try {
+            String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS").format(new Date());
+            String subDir = status.equalsIgnoreCase("PASSED") ? "passed/" : "failed/";
+            String fileName = testName + "_" + timestamp + ".png";
+            String fullPath = FrameworkConstants.SCREENSHOTS_DIR + subDir + fileName;
+
+            File srcFile = ((TakesScreenshot) DriverManager.getDriver()).getScreenshotAs(OutputType.FILE);
+            File destFile = new File(fullPath);
+
             FileUtils.copyFile(srcFile, destFile);
-            log.info("Saved failure screenshot to: {}", destFile.getAbsolutePath());
-            return filePath;
-        } catch (IOException e) {
-            log.error("Failed to save screenshot file", e);
+            log.info("Saved {} screenshot to: {}", status, destFile.getAbsolutePath());
+            return fullPath;
+        } catch (Exception e) {
+            log.error("Failed to save screenshot file: {}", e.getMessage());
             return null;
         }
     }
