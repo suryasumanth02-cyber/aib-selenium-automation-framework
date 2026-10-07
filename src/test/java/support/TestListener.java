@@ -1,19 +1,13 @@
-package com.aib.listeners;
+package support;
 
-import com.aib.utils.ScreenshotUtils;
-import io.qameta.allure.Allure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
-import java.io.ByteArrayInputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Custom TestNG Listener capturing lifecycle events, success & failure screenshots, and summary banner.
- */
 public class TestListener implements ITestListener {
 
     private static final Logger log = LoggerFactory.getLogger(TestListener.class);
@@ -40,13 +34,7 @@ public class TestListener implements ITestListener {
         passedCount.incrementAndGet();
         String testName = result.getMethod().getMethodName();
         long duration = result.getEndMillis() - result.getStartMillis();
-        log.info(">>> [PASS] Test: {}() finished successfully in {}ms", testName, duration);
-
-        // Capture screenshot on SUCCESS and attach to Allure Report
-        byte[] screenshotBytes = ScreenshotUtils.captureScreenshotForReport(testName, "PASSED");
-        if (screenshotBytes != null && screenshotBytes.length > 0) {
-            Allure.addAttachment(testName + "_SUCCESS_Screenshot", new ByteArrayInputStream(screenshotBytes));
-        }
+        log.info(">>> [PASS] Test: {}() finished in {}ms", testName, duration);
         ScreenshotUtils.saveScreenshotToFile(testName, "PASSED");
     }
 
@@ -55,12 +43,6 @@ public class TestListener implements ITestListener {
         failedCount.incrementAndGet();
         String testName = result.getMethod().getMethodName();
         log.error(">>> [FAIL] Test: {}() failed with error: {}", testName, result.getThrowable().getMessage());
-
-        // Capture screenshot on FAILURE and attach to Allure Report
-        byte[] screenshotBytes = ScreenshotUtils.captureScreenshotForReport(testName, "FAILED");
-        if (screenshotBytes != null && screenshotBytes.length > 0) {
-            Allure.addAttachment(testName + "_FAILURE_Screenshot", new ByteArrayInputStream(screenshotBytes));
-        }
         ScreenshotUtils.saveScreenshotToFile(testName, "FAILED");
     }
 
