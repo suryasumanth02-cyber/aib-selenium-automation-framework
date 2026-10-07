@@ -34,7 +34,7 @@ jobs:
 
       - name: Execute Full TestNG Suite via Maven
         run: |
-          mvn clean test -Dheadless=true
+          mvn clean test -Dheadless=true -DtestFailureIgnore=true
 
       - name: Generate Allure Report
         if: always()

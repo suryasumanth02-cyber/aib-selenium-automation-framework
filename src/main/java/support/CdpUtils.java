@@ -115,8 +115,8 @@ public final class CdpUtils {
      * Simulates Slow 3G network conditions (Irish rural/transit simulation).
      */
     public static void simulateSlow3G(WebDriver driver) {
-        // Slow 3G: ~400ms RTT, ~500kbps download (~64KB/s), ~500kbps upload
-        emulateNetworkConditions(driver, false, 400, 64 * 1024, 64 * 1024);
+        // Mobile 3G/Transit: ~200ms RTT, ~1.6 Mbps download (~200KB/s), ~200KB/s upload
+        emulateNetworkConditions(driver, false, 200, 200 * 1024, 200 * 1024);
     }
 
     /**

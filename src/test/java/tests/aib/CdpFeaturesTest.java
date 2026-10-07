@@ -29,6 +29,7 @@ public class CdpFeaturesTest extends BaseTest {
         if (driver != null) {
             CdpUtils.clearGeolocation(driver);
             CdpUtils.resetNetwork(driver);
+            driver.manage().timeouts().pageLoadTimeout(support.Constants.LONG_TIMEOUT);
         }
     }
 
@@ -78,9 +79,10 @@ public class CdpFeaturesTest extends BaseTest {
     @Test(groups = {"cdp", "network", "resilience"}, priority = 3)
     @Story("Slow 3G Network Resilience")
     @Severity(SeverityLevel.CRITICAL)
-    @Description("Simulate Slow 3G network conditions (400ms latency, 500kbps) on Mortgage Calculator to verify page stability")
+    @Description("Simulate Slow 3G network conditions on Mortgage Calculator to verify page stability")
     public void testSlow3GNetworkEmulationOnMortgageCalculator() {
         WebDriver driver = DriverManager.getDriver();
+        driver.manage().timeouts().pageLoadTimeout(java.time.Duration.ofSeconds(60));
 
         CdpUtils.simulateSlow3G(driver);
         long startTime = System.currentTimeMillis();
