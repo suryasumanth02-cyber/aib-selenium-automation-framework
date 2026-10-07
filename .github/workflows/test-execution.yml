@@ -1,4 +1,4 @@
-name: AIB Selenium UI Test Suite
+name: AIB Selenium UI Test Suite & Allure Dashboard
 
 on:
   push:
@@ -7,10 +7,15 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Run Automated UI Tests (Headless Chrome)
+    name: Execute Regression & Deploy Allure Dashboard
 
     steps:
       - name: Checkout Repository
@@ -32,7 +37,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: Execute TestNG Regression Suite via Maven
+      - name: Execute Full TestNG Suite via Maven
         run: |
           mvn clean test -Dheadless=true
 
@@ -41,12 +46,31 @@ jobs:
         run: |
           mvn allure:report
 
-      - name: Upload Test Results Artifacts
+      - name: Upload Test Results & Screenshots Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-execution-reports
+          name: aib-test-reports-and-screenshots
           path: |
             target/surefire-reports/
             target/site/allure-maven-plugin/
             target/screenshots/
+
+      - name: Deploy Allure Report to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: target/site/allure-maven-plugin
+          keep_files: true
+
+      - name: Publish Test Summary
+        if: always()
+        run: |
+          echo "### 🚀 AIB Enterprise Test Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Framework:** Selenium 4.29.0 & TestNG 7.10.2" >> $GITHUB_STEP_SUMMARY
+          echo "- **Accessibility:** Deque axe-core WCAG 2.1 Level AA Compliance" >> $GITHUB_STEP_SUMMARY
+          echo "- **CDP DevTools:** Geolocation Emulation & Network Throttling" >> $GITHUB_STEP_SUMMARY
+          echo "- **Hybrid Crawler:** Java 11 HttpClient Multi-threaded Link & Asset Audit" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 **Live Allure Dashboard:** [View on GitHub Pages](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/)" >> $GITHUB_STEP_SUMMARY

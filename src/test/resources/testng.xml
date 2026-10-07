@@ -11,6 +11,9 @@
             <class name="tests.aib.MortgageTest"/>
             <class name="tests.aib.LoansTest"/>
             <class name="tests.aib.SavingsTest"/>
+            <class name="tests.aib.AccessibilityTest"/>
+            <class name="tests.aib.CdpFeaturesTest"/>
+            <class name="tests.aib.NetworkHealthTest"/>
             <class name="tests.smoke.SmokeTest"/>
         </classes>
     </test>
