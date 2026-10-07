@@ -1,0 +1,17 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="AIB Digital Platform UI Automation Suite" verbose="2" parallel="classes" thread-count="2">
+
+    <listeners>
+        <listener class-name="com.aib.listeners.TestListener"/>
+        <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
+    </listeners>
+
+    <test name="AIB Core Digital Banking Tests">
+        <classes>
+            <class name="com.aib.tests.AibNavigationTest"/>
+            <class name="com.aib.tests.MortgageCalculatorTest"/>
+            <class name="com.aib.tests.BranchLocatorTest"/>
+            <class name="com.aib.tests.FxRatesTest"/>
+        </classes>
+    </test>
+</suite>
