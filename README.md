@@ -1,36 +1,56 @@
-# AIB (Allied Irish Banks) Enterprise UI Test Automation Framework
+# AIB Web UI Automation Framework
 
-[![Java CI](https://img.shields.io/badge/Language-Java%2017%2F21%2F25-orange.svg)](https://www.oracle.com/java/)
-[![Selenium](https://img.shields.io/badge/Selenium-4.29.0-green.svg)](https://www.selenium.dev/)
-[![TestNG](https://img.shields.io/badge/TestNG-7.10.2-red.svg)](https://testng.org/)
-[![Axe Core](https://img.shields.io/badge/Accessibility-WCAG%202.1%20AA%20(axe--core)-blueviolet.svg)](https://www.deque.com/axe/)
-[![CDP](https://img.shields.io/badge/Chrome%20DevTools%20Protocol-CDP%20Emulation-blue.svg)](https://chromedevtools.github.io/devtools-protocol/)
-[![Docker](https://img.shields.io/badge/Selenium%20Grid-Docker%20Compose-2496ED.svg)](https://www.docker.com/)
-[![Allure](https://img.shields.io/badge/Reporting-Allure%202.29.0-yellow.svg)](https://docs.qameta.io/allure/)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions%20%26%20Pages-2088FF.svg)](https://github.com/)
+This is an end-to-end UI test automation framework I built from scratch for the Allied Irish Banks (AIB - aib.ie) public web platform. The project is implemented in Java 17+ with Selenium WebDriver 4, TestNG, and Maven, and includes Allure reporting and a GitHub Actions CI pipeline.
 
-An enterprise-grade UI test automation framework built from scratch targeting public customer-facing financial tools on the **AIB (Allied Irish Banks - `aib.ie`)** web platform. Designed to demonstrate production-level SDET best practices for top Irish financial institutions, multinational tech firms, and fintech companies (AIB, Bank of Ireland, Stripe, Fidelity Investments, Citi, Workday).
+I built this project to simulate real-world financial web automation. It covers 61 automated tests across customer journeys like mortgage calculation, personal loan estimation, savings goals, brand visual checks, accessibility compliance, and network/location emulation.
 
 ---
 
-## 🏗️ Architecture & Project Structure
+## Why I Built This
 
-The project strictly follows the clean, modular VS Code package layout:
+I wanted to build a testing framework that goes beyond basic button clicking and actually addresses the real challenges of automated testing on enterprise web applications:
+
+1. Dynamic overlays and third-party consent dialogs (such as OneTrust GDPR banners).
+2. Bot detection and automation flags (Akamai).
+3. Accessibility regulations (WCAG 2.1 AA / European Accessibility Act 2025).
+4. Network and location behavior (CDP emulation for geolocation and throttling).
+5. Fast feedback loops (reusing browser instances per test class, parallel test runs, and headless CI).
+
+---
+
+## Tech Stack
+
+- Language: Java 17+ (tested on Java 17 and 25)
+- Automation Tool: Selenium WebDriver 4.29.0
+- Test Runner: TestNG 7.10.2
+- Build Tool: Apache Maven
+- Accessibility Engine: Deque axe-core 4.10.1
+- Network / HTTP: Java 11 java.net.http.HttpClient
+- Reporting: Allure 2.29.0 & TestNG XML reports
+- Containerization: Docker & Docker Compose (Selenium Grid 4)
+- CI/CD: GitHub Actions with GitHub Pages report deployment
+
+---
+
+## Project Structure
+
+I structured the project using a standard Maven layout with clean separation between page objects, framework support utilities, and test suites:
 
 ```
 SeleniumUiTesting/
-├── .github/workflows/
-│   └── test-execution.yml        # GitHub Actions CI/CD deploying Allure to GitHub Pages
+├── .github/
+│   └── workflows/
+│       └── test-execution.yml     # GitHub Actions pipeline
 ├── src/
 │   ├── main/java/
-│   │   ├── pages/                # Fluent Page Object Model (POM) & Component Objects
+│   │   ├── pages/                 # Page Object Model classes
 │   │   │   ├── BasePage.java
 │   │   │   ├── AibHomePage.java
 │   │   │   ├── MortgagePage.java
 │   │   │   ├── LoansPage.java
 │   │   │   ├── SavingsPage.java
 │   │   │   └── CookieBannerComponent.java
-│   │   └── support/              # Core Utilities & Automation Engines
+│   │   └── support/               # Framework utilities
 │   │       ├── ConfigReader.java
 │   │       ├── Constants.java
 │   │       ├── DriverFactory.java
@@ -38,182 +58,150 @@ SeleniumUiTesting/
 │   │       ├── WaitUtils.java
 │   │       ├── JavaScriptUtils.java
 │   │       ├── ScreenshotUtils.java
-│   │       ├── AccessibilityUtils.java  # Deque axe-core WCAG 2.1 AA auditor
-│   │       ├── CdpUtils.java            # Selenium 4 CDP (Geolocation & Throttling)
-│   │       └── NetworkHealthUtils.java  # Java 11 HttpClient hybrid crawler
+│   │       ├── AccessibilityUtils.java
+│   │       ├── CdpUtils.java
+│   │       └── NetworkHealthUtils.java
 │   └── test/java/
-│       ├── support/              # Test lifecycle & Listeners
-│       │   ├── BaseTest.java            # Single-session @BeforeClass / @AfterClass
-│       │   └── TestListener.java        # Auto PASS/FAIL screenshots & execution banner
-│       ├── tests/aib/            # Enterprise Regression & Functional Suites
-│       │   ├── AibHomeTest.java         # 10 tests (UI, RGBA brand colors, navigation)
-│       │   ├── MortgageTest.java        # 12 tests (Sliders, rates, calculations, RGBA)
-│       │   ├── LoansTest.java           # 13 tests (Loan calculator, repayment, RGBA)
-│       │   ├── SavingsTest.java         # 13 tests (Savings goal calculator, terms, RGBA)
-│       │   ├── AccessibilityTest.java   # 3 tests (WCAG 2.1 AA scans on Home, Mortgages, Loans)
-│       │   ├── CdpFeaturesTest.java     # 4 tests (Dublin/Cork Geolocation, Slow 3G, Console logs)
-│       │   └── NetworkHealthTest.java   # 3 tests (Hyperlinks, image assets, regulatory links)
+│       ├── support/               # Test lifecycle & listener
+│       │   ├── BaseTest.java
+│       │   └── TestListener.java
+│       ├── tests/aib/             # Functional and technical test classes
+│       │   ├── AibHomeTest.java
+│       │   ├── MortgageTest.java
+│       │   ├── LoansTest.java
+│       │   ├── SavingsTest.java
+│       │   ├── AccessibilityTest.java
+│       │   ├── CdpFeaturesTest.java
+│       │   └── NetworkHealthTest.java
 │       └── tests/smoke/
-│           └── SmokeTest.java           # 3 fast smoke tests for CI sanity checks
+│           └── SmokeTest.java
 ├── src/test/resources/
-│   ├── config.properties         # Global configuration (browsers, URLs, grid)
-│   └── testng.xml                # Multi-threaded parallel execution suite
-├── docker-compose.yml            # Selenium Grid 4 Hub + Chrome & Firefox nodes
-└── pom.xml                       # Maven build with Surefire & Allure plugins
+│   ├── config.properties          # Global test configuration
+│   └── testng.xml                 # Suite file configured for parallel execution
+├── docker-compose.yml             # Selenium Grid Hub + Chrome and Firefox nodes
+└── pom.xml                        # Maven dependencies and build configuration
 ```
 
 ---
 
-## 🌟 Advanced SDET Portfolio Features
+## Core Framework Design Decisions
 
-### 1. ♿ Automated WCAG 2.1 Level AA Accessibility Auditing (axe-core)
-- Integrated **Deque `axe-core`** to enforce **EU Directive 2019/882 (European Accessibility Act 2025)** compliance.
-- Runs comprehensive full-page and component-level audits across AIB Homepage, Mortgage Calculator, and Personal Loans portals.
-- Categorizes accessibility violations into **Critical, Serious, Moderate, and Minor**, generating structured reports attached directly to Allure test cases.
-- Asserts zero blocking critical defects (color contrast, ARIA landmarks, form labels, keyboard reachability).
+### 1. Page Object Model (POM) with Fluent Interfaces
+I separated test logic from DOM locators by modeling each webpage (and self-contained components like the cookie banner) as its own class. Methods return page instances where applicable to allow readable method chaining in tests.
 
-### 2. ⚡ Selenium 4 Chrome DevTools Protocol (CDP) Automation
-- Leverages version-resilient `((ChromiumDriver) driver).executeCdpCommand()` bypassing CDP binding mismatches.
-- **Irish Geolocation Emulation:**
-  - **Dublin:** Latitude `53.349805`, Longitude `-6.260310`
-  - **Cork:** Latitude `51.898514`, Longitude `-8.475603`
-  - Emulates client position via `Emulation.setGeolocationOverride` and grants origin permissions via `Browser.grantPermissions` to test regional branch finders.
-- **Network Throttling & Resilience:**
-  - Simulates **Slow 3G** (400ms RTT, 500kbps throughput) via `Network.emulateNetworkConditions` to verify page stability under poor Irish transit/rural connectivity.
-- **Console Log Auditing:**
-  - Captures browser runtime errors and audits client-side JavaScript crashes via Selenium LogEntries / CDP Log domain.
+### 2. Thread-Safe WebDriver Management
+I wrapped the WebDriver instance inside a ThreadLocal within `DriverManager`. This ensures tests running in parallel across multiple classes never share or corrupt each other's browser state.
 
-### 3. 🌐 API & UI Hybrid Broken Link & Asset Crawler
-- High-speed crawler combining Selenium DOM extraction with non-blocking **Java 11 `HttpClient`**.
-- Concurrently audits hundreds of hyperlink `<a>` hrefs and image `<img>` sources using parallel `CompletableFuture` pools.
-- Verifies image renderability by checking both HTTP response status and DOM `naturalWidth > 0` via JavaScript.
-- Validates Central Bank of Ireland consumer disclosures, regulatory links, and privacy notices.
+### 3. Single Browser Session per Test Class
+Instead of spinning up and quitting a browser for every individual test method (which causes massive overhead), I manage driver initialization inside `@BeforeClass` and teardown in `@AfterClass`. This dropped the total execution time for all 61 tests down to around 2 minutes.
 
-### 4. 🐳 Docker & Distributed Selenium Grid Execution
-- Includes `docker-compose.yml` orchestrating:
-  - `selenium-hub` (port `4444`)
-  - `chrome-node` (shared memory `2gb`, 2 parallel browser sessions)
-  - `firefox-node` (shared memory `2gb`, 2 parallel browser sessions)
-- `DriverFactory` seamlessly switches between local drivers and `RemoteWebDriver` via `-Dremote=true` or `-Dgrid.url=http://localhost:4444/wd/hub`.
+### 4. Zero Thread.sleep()
+All waiting logic relies on dynamic explicit waits in `WaitUtils` (such as `visibilityOfElementLocated` and `elementToBeClickable`).
 
-### 5. 🚀 CI/CD Pipeline & Live Allure Report Deployment
-- Fully automated **GitHub Actions** workflow (`.github/workflows/test-execution.yml`).
-- Runs headless tests on Ubuntu runners with Google Chrome Stable.
-- Generates rich Allure HTML dashboards and deploys them directly to **GitHub Pages (`gh-pages`)** with historical trend tracking.
-- Publishes job summaries and uploads screenshots of all test runs as build artifacts.
+### 5. Automatic Screenshot on Pass & Fail
+Through a custom TestNG listener (`TestListener`), every passed test automatically captures a timestamped screenshot saved under `target/screenshots/passed/`. Any failure captures a screenshot under `target/screenshots/failed/` and attaches it directly to the Allure report.
 
-### 6. 🎨 RGBA Brand Color & Design System Verification
-- Verifies AIB's digital design system colors (Primary Purple `rgba(128, 39, 137, 1)` / `#802789`, Active Coral `rgba(235, 114, 0, 1)`, Pure White `rgba(255, 255, 255, 1)`).
-- Ensures CSS styling, buttons, active tabs, and promotional badges adhere to exact brand hex/RGBA specifications.
+### 6. WCAG 2.1 AA Accessibility Testing (axe-core)
+I integrated Deque's `axe-core` library to run automated accessibility audits against the live AIB pages. The audit runs against `wcag2a`, `wcag2aa`, `wcag21a`, and `wcag21aa` rules, categorizing findings into Critical, Serious, Moderate, and Minor violations.
 
-### 7. 📸 Smart Screenshot Capture & Execution Banner
-- Single browser session per test class via `@BeforeClass` and `@AfterClass` to minimize browser overhead.
-- Automatic full-screen screenshot capture for:
-  - **Successful Tests:** saved to `target/screenshots/passed/`
-  - **Failed Tests:** saved to `target/screenshots/failed/`
-- Clean ASCII execution summary banner outputting total tests, passed, failed, and execution status.
+### 7. Selenium 4 Chrome DevTools Protocol (CDP)
+I used Chromium's CDP raw commands (`executeCdpCommand`) instead of version-locked devtools packages. This allowed me to:
+- Emulate geographical coordinates for Dublin (53.3498, -6.2603) and Cork (51.8985, -8.4756) to test branch location behavior.
+- Emulate mobile transit network conditions (latency and throughput throttling).
+- Capture and inspect browser console logs for severe JavaScript errors.
+
+### 8. Hybrid API & UI Crawler
+Instead of navigating sequentially to every link through the browser (which takes minutes), I built `NetworkHealthUtils` using Java 11 `HttpClient` and `CompletableFuture`. It pulls all link and image targets from the page using Selenium and validates their HTTP status codes concurrently in a few seconds.
+
+### 9. Docker & Selenium Grid
+I created a `docker-compose.yml` file to spin up a Selenium Hub with Chrome and Firefox nodes. `DriverFactory` detects when `-Dremote=true` is set and connects to the Grid via `RemoteWebDriver`.
 
 ---
 
-## 📊 Complete Test Suite Inventory (61 Tests)
+## Test Coverage (61 Tests Total)
 
-| Class | Tests | TestNG Groups | Key Validations |
+| Test Class | Scenarios | Groups | What Is Tested |
 | :--- | :---: | :--- | :--- |
-| **`AibHomeTest`** | **10** | `home`, `ui`, `rgba`, `regression` | Page title, logo visibility, primary navigation menu, Daily Banking CTA, RGBA purple brand banner, search trigger, mobile app promo, security badge, ways to bank, and footer legal disclaimer. |
-| **`MortgageTest`** | **12** | `mortgage`, `calculator`, `rgba`, `regression` | Calculator header, First Time Buyer tab, RGBA active tab style, property value & deposit sliders, calculate button, monthly repayment estimate, borrowing capacity, reset function, disclaimer, and rates. |
-| **`LoansTest`** | **13** | `loans`, `calculator`, `rgba`, `regression` | Loans landing page, calculator inputs, term dropdown, monthly repayment result, APR interest rate, apply CTA button, Car loan option, Home Improvement option, personal loan rates, and RGBA CTA button. |
-| **`SavingsTest`** | **13** | `savings`, `deposits`, `rgba`, `regression` | Savings landing page, Regular Saver account, Deposit accounts, interest rate display, online opening CTA, calculator goal input, term options, monthly contribution estimate, RGBA buttons, and help link. |
-| **`AccessibilityTest`**| **3** | `accessibility`, `compliance`, `regression` | WCAG 2.1 AA audit on AIB Homepage, Mortgage Calculator, and Loans page with axe-core; asserts zero critical blocking defects. |
-| **`CdpFeaturesTest`** | **4** | `cdp`, `geolocation`, `network`, `console` | Emulates Dublin coordinates (53.3498, -6.2603), Cork coordinates (51.8985, -8.4756), Slow 3G throttling (400ms latency), and browser console JS error audit. |
-| **`NetworkHealthTest`**| **3** | `network`, `crawler`, `compliance`, `regression`| 20+ homepage hyperlinks status check, 20+ brand image naturalWidth validation, and Central Bank / regulatory links reachability. |
-| **`SmokeTest`** | **3** | `smoke`, `sanity` | Fast pre-merge smoke verification of Homepage, Mortgages, and Loans portals. |
-| **TOTAL** | **61** | — | **100% Passing in ~2 minutes with parallel class execution** |
+| AibHomeTest | 10 | home, ui, rgba, regression | Header, branding, navigation menu, Daily Banking CTA, RGBA purple brand color, search bar, app promo, security badge, ways to bank, and legal disclaimers. |
+| MortgageTest | 12 | mortgage, calculator, rgba, regression | Mortgage calculator header, First Time Buyer tab, active tab styles, property value and deposit inputs, calculate button, monthly estimates, borrowing capacity, reset function, disclaimer, and interest rates. |
+| LoansTest | 13 | loans, calculator, rgba, regression | Loan calculator fields, repayment amounts, term dropdowns, APR rates, Apply CTA, Car loan option, Home improvement option, personal rates, and button RGBA colors. |
+| SavingsTest | 13 | savings, deposits, rgba, regression | Savings landing page, Regular Saver, Fixed Term deposits, interest rate displays, online opening links, savings goal calculator, term options, and button styling. |
+| AccessibilityTest | 3 | accessibility, compliance, regression | Full WCAG 2.1 AA accessibility scans across Homepage, Mortgage Calculator, and Loans pages. |
+| CdpFeaturesTest | 4 | cdp, geolocation, network, console | Dublin geolocation override, Cork geolocation override, network throttling, and browser console error auditing. |
+| NetworkHealthTest | 3 | network, crawler, compliance, regression | Concurrent hyperlink validation, image render checks (naturalWidth > 0), and regulatory disclosure links. |
+| SmokeTest | 3 | smoke, sanity | High-level sanity checks ensuring Homepage, Mortgages, and Loans portals are reachable. |
 
 ---
 
-## 💻 How to Run the Tests
+## How to Run the Tests
 
 ### Prerequisites
-- **Java JDK:** 17, 21, or 25
-- **Apache Maven:** 3.9+
-- **Google Chrome:** (or Firefox / Edge)
+- Java JDK 17 or higher
+- Apache Maven 3.9+
+- Google Chrome (or Firefox / Edge)
 
-### 1. Run the Entire Regression Suite (Default: Headless Chrome)
+### Run all tests (headless Chrome by default)
 ```bash
 mvn clean test
 ```
 
-### 2. Run Targeted Test Suites by Group
-```bash
-# Run only WCAG 2.1 AA Accessibility audits
-mvn test -Dgroups=accessibility
-
-# Run only Chrome DevTools Protocol (CDP) tests
-mvn test -Dgroups=cdp
-
-# Run only the Broken Link & Asset Crawler
-mvn test -Dgroups=crawler
-
-# Run only Mortgage Calculator tests
-mvn test -Dgroups=mortgage
-
-# Run only RGBA color design tests
-mvn test -Dgroups=rgba
-
-# Run fast Smoke sanity tests
-mvn test -Dgroups=smoke
-```
-
-### 3. Run with Visible Browser UI (Headed Mode)
+### Run with browser visible (headed mode)
 ```bash
 mvn test -Dheadless=false
 ```
 
-### 4. Cross-Browser Execution
+### Run specific test groups
+```bash
+# Run only accessibility audits
+mvn test -Dgroups=accessibility
+
+# Run only CDP DevTools tests
+mvn test -Dgroups=cdp
+
+# Run only broken link and image crawler
+mvn test -Dgroups=crawler
+
+# Run only mortgage calculator tests
+mvn test -Dgroups=mortgage
+
+# Run only brand color RGBA tests
+mvn test -Dgroups=rgba
+
+# Run smoke tests
+mvn test -Dgroups=smoke
+```
+
+### Cross-browser testing
 ```bash
 mvn test -Dbrowser=firefox
 mvn test -Dbrowser=edge
 ```
 
-### 5. Distributed Execution via Docker & Selenium Grid
+### Run with Docker Selenium Grid
 ```bash
-# Start Selenium Grid Hub, Chrome & Firefox containers
+# Start the grid
 docker compose up -d
 
-# Verify Grid status at http://localhost:4444
-# Run tests against the distributed Grid
+# Run tests on the remote grid
 mvn test -Dremote=true
 
-# Stop Grid
+# Stop the grid
 docker compose down
 ```
 
-### 6. Generate & Open Allure Report
+### Generate and view the Allure report
 ```bash
-# Generate HTML report
 mvn allure:report
-
-# Serve and open interactive dashboard in browser
 mvn allure:serve
 ```
 
 ---
 
-## 🎯 How to Pitch This Project in Ireland Tech Interviews
+## CI/CD Pipeline
 
-Use this executive summary on your resume and in SDET interviews:
-
-```
-Role: Senior SDET / QA Automation Engineer
-Project: Enterprise AIB Digital Banking UI Automation Framework
-Tech Stack: Java 17/25, Selenium WebDriver 4.29, TestNG 7.10, Deque axe-core, Chrome DevTools Protocol (CDP), Java 11 HttpClient, Docker, Allure 2.29, GitHub Actions
-
-Key Accomplishments:
-• Architected a thread-safe UI test automation framework from scratch for Allied Irish Banks (aib.ie), scaling to 61 automated test cases with 100% green execution.
-• Built automated WCAG 2.1 Level AA accessibility auditing using Deque axe-core, validating compliance with the European Accessibility Act 2025 across banking portals.
-• Implemented Selenium 4 Chrome DevTools Protocol (CDP) for Dublin/Cork geolocation emulation and Slow 3G network throttling to simulate rural Irish connectivity.
-• Designed a hybrid API & UI crawler utilizing Java 11 HttpClient and CompletableFuture parallel streams to validate hundreds of hyperlinks and image assets in seconds.
-• Automated RGBA design system color validations, verifying brand primary purple (#802789) and interactive button states.
-• Configured distributed test execution with Docker Compose and Selenium Grid 4, enabling scalable containerized cross-browser runs.
-• Built a GitHub Actions CI/CD pipeline deploying live Allure reporting dashboards to GitHub Pages with automated failure screenshot capture.
-```
+The repository includes a GitHub Actions workflow in `.github/workflows/test-execution.yml` that:
+1. Checks out the code and sets up JDK 17 on an Ubuntu runner.
+2. Runs the full test suite in headless Chrome.
+3. Generates the Allure HTML report.
+4. Uploads test screenshots and surefire reports as job artifacts.
+5. Deploys the Allure report to GitHub Pages on every push to main.
